@@ -1,0 +1,75 @@
+#include <stdio.h>
+
+struct Process {
+    int pid;
+    int burstTime;
+    int priority;
+    int turnaroundTime;
+    int waitingTime;
+};
+
+void priorityScheduling(struct Process processes[], int n) {
+    int i, j;
+    struct Process temp;
+    
+ 
+    for (i = 0; i < n - 1; i++) {
+        for (j = 0; j < n - i - 1; j++) {
+            if (processes[j].priority > processes[j + 1].priority) {
+                temp = processes[j];
+                processes[j] = processes[j + 1];
+                processes[j + 1] = temp;
+            }
+        }
+    }
+    
+    processes[0].turnaroundTime = processes[0].burstTime;
+    processes[0].waitingTime = 0;
+    
+    for (i = 1; i < n; i++) {
+        processes[i].turnaroundTime = processes[i - 1].turnaroundTime + processes[i].burstTime;
+        processes[i].waitingTime = processes[i].turnaroundTime - processes[i].burstTime;
+    }
+}
+
+int main() {
+    int n, i;
+    float avgTurnaroundTime = 0, avgWaitingTime = 0;
+    
+    printf("Enter the number of processes: ");
+    scanf("%d", &n);
+    
+    struct Process processes[n];
+    
+  
+    for (i = 0; i < n; i++) {
+        printf("\nProcess %d\n", i + 1);
+        printf("Enter the Burst Time: ");
+        scanf("%d", &processes[i].burstTime);
+        printf("Enter the Priority: ");
+        scanf("%d", &processes[i].priority);
+        processes[i].pid = i + 1;
+    }
+    
+    
+    priorityScheduling(processes, n);
+    
+    // Print the process details and calculate average turnaround time and waiting time
+    printf("\nProcess\tBurst Time\tPriority\tTurnaround Time\tWaiting Time\n");
+    
+    for (i = 0; i < n; i++) {
+        printf("%d\t%d\t\t%d\t\t%d\t\t%d\n", processes[i].pid, processes[i].burstTime, processes[i].priority,
+               processes[i].turnaroundTime, processes[i].waitingTime);
+        
+        avgTurnaroundTime += processes[i].turnaroundTime;
+        avgWaitingTime += processes[i].waitingTime;
+    }
+    
+    avgTurnaroundTime /= n;
+    avgWaitingTime /= n;
+    
+    printf("\nAverage Turnaround Time: %.2f", avgTurnaroundTime);
+    printf("\nAverage Waiting Time: %.2f", avgWaitingTime);
+    
+    return 0;
+}
